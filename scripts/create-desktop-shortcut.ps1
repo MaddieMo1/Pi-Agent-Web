@@ -12,14 +12,14 @@ if (-not $launcher) {
 $launcherPath = $launcher.FullName
 $iconPath = Join-Path $projectRoot "public\app-icon.ico"
 $desktopPath = [Environment]::GetFolderPath("Desktop")
-$shortcutPath = Join-Path $desktopPath "Pi Agent Web.lnk"
+$shortcutPath = Join-Path $desktopPath "Maddie Agent.lnk"
 
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $launcherPath
 $shortcut.WorkingDirectory = $projectRoot
 $shortcut.WindowStyle = 1
-$shortcut.Description = "Start Pi Agent Web"
+$shortcut.Description = "Start Maddie Agent"
 if (Test-Path -LiteralPath $iconPath) {
   $shortcut.IconLocation = $iconPath
 }
