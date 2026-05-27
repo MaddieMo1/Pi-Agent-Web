@@ -12,7 +12,7 @@ if (-not $launcher) {
 $launcherPath = $launcher.FullName
 $iconPath = Join-Path $projectRoot "public\app-icon.ico"
 $desktopPath = [Environment]::GetFolderPath("Desktop")
-$shortcutPath = Join-Path $desktopPath "Pi Agent.lnk"
+$shortcutPath = Join-Path $desktopPath "Pi Agent Web.lnk"
 
 $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
