@@ -23,16 +23,16 @@ http://localhost:30141
 
 ### 运行已发布的 npm 包
 
-下面两个命令运行的是 npm 上发布的 `@agegr/pi-web` 包，不一定包含本仓库的最新改动。
+下面两个命令运行的是 npm 上发布的 `@maddiemo1/pi-agent-web` 包。
 
 ```bash
-npx @agegr/pi-web@latest
+npx @maddiemo1/pi-agent-web@latest
 ```
 
 或全局安装后运行：
 
 ```bash
-npm install -g @agegr/pi-web
+npm install -g @maddiemo1/pi-agent-web
 pi-web
 ```
 
