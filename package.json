@@ -4,7 +4,8 @@
   "description": "Web UI for the pi coding agent",
   "license": "MIT",
   "bin": {
-    "pi-web": "bin/pi-web.js"
+    "pi-web": "bin/pi-web.js",
+    "pi-agent-web": "bin/pi-web.js"
   },
   "files": [
     "bin",
