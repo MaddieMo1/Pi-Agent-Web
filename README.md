@@ -23,16 +23,16 @@ http://localhost:30141
 
 ### 发布到 npm 后运行
 
-当 `@maddiemo1/pi-agent-web` 已发布到 npm 后，可以直接运行：
+当 `@maddie1/pi-agent-web` 已发布到 npm 后，可以直接运行：
 
 ```bash
-npx @maddiemo1/pi-agent-web@latest
+npx @maddie1/pi-agent-web@latest
 ```
 
 也可以全局安装后运行：
 
 ```bash
-npm install -g @maddiemo1/pi-agent-web
+npm install -g @maddie1/pi-agent-web
 pi-web
 # 或
 pi-agent-web
