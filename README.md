@@ -34,6 +34,8 @@ npx @maddiemo1/pi-agent-web@latest
 ```bash
 npm install -g @maddiemo1/pi-agent-web
 pi-web
+# 或
+pi-agent-web
 ```
 
 可选参数：
