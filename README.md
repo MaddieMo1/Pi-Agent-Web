@@ -6,23 +6,34 @@ Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在
 
 ## 快速开始
 
-### 方式一：直接运行
+### 运行当前仓库代码
 
 ```bash
-npx @agegr/pi-web@latest
-```
-
-### 方式二：全局安装
-
-```bash
-npm install -g @agegr/pi-web
-pi-web
+git clone https://github.com/MaddieMo1/Pi-Agent-Web.git
+cd Pi-Agent-Web
+npm install
+npm run dev
 ```
 
 启动后打开：
 
 ```text
 http://localhost:30141
+```
+
+### 运行已发布的 npm 包
+
+下面两个命令运行的是 npm 上发布的 `@agegr/pi-web` 包，不一定包含本仓库的最新改动。
+
+```bash
+npx @agegr/pi-web@latest
+```
+
+或全局安装后运行：
+
+```bash
+npm install -g @agegr/pi-web
+pi-web
 ```
 
 可选参数：
