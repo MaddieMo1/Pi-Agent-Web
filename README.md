@@ -6,13 +6,10 @@ Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在
 
 ## 快速开始
 
-### 运行当前仓库代码
+### 直接运行 npm 包
 
 ```bash
-git clone https://github.com/MaddieMo1/Pi-Agent-Web.git
-cd Pi-Agent-Web
-npm install
-npm run dev
+npx @maddie1/pi-agent-web@latest
 ```
 
 启动后打开：
@@ -21,20 +18,22 @@ npm run dev
 http://localhost:30141
 ```
 
-### 发布到 npm 后运行
-
-当 `@maddie1/pi-agent-web` 已发布到 npm 后，可以直接运行：
+如果你的 npm 默认源是国内镜像，刚发布的新版本可能还没同步，可以临时指定官方源：
 
 ```bash
-npx @maddie1/pi-agent-web@latest
+npx @maddie1/pi-agent-web@latest --registry https://registry.npmjs.org
 ```
 
-也可以全局安装后运行：
+### 全局安装
 
 ```bash
 npm install -g @maddie1/pi-agent-web
+```
+
+安装后两个命令都可以启动：
+
+```bash
 pi-web
-# 或
 pi-agent-web
 ```
 
@@ -52,9 +51,11 @@ pi-web -p 8080 -H 127.0.0.1
 PORT=8080 pi-web
 ```
 
-## 本地开发
+## 运行当前仓库代码
 
 ```bash
+git clone https://github.com/MaddieMo1/Pi-Agent-Web.git
+cd Pi-Agent-Web
 npm install
 npm run dev
 ```
@@ -72,7 +73,7 @@ node_modules/.bin/tsc --noEmit
 npm run lint
 ```
 
-开发时不要运行 `next build`，它会生成 `.next/` 构建产物，可能影响本地开发服务。
+开发时不要运行 `next build`，它会生成 `.next/` 构建产物，可能影响本地开发服务。发布 npm 包前才需要构建。
 
 ## Windows 一键启动
 
@@ -180,6 +181,14 @@ Browser
 - 新旧 compaction 事件都要兼容：`compaction_start/end` 和 `auto_compaction_start/end`
 - `.agents/`、`node_modules/`、`.next/`、`.env*` 等本地目录和敏感文件不会提交到仓库
 
+## 发布状态
+
+npm 包已发布：
+
+```text
+@maddie1/pi-agent-web@0.6.11
+```
+
 ## License
 
-如果需要开源发布，请在仓库中补充明确的 LICENSE 文件。
+MIT
