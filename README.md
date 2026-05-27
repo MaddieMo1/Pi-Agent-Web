@@ -21,15 +21,15 @@ npm run dev
 http://localhost:30141
 ```
 
-### 运行已发布的 npm 包
+### 发布到 npm 后运行
 
-下面两个命令运行的是 npm 上发布的 `@maddiemo1/pi-agent-web` 包。
+当 `@maddiemo1/pi-agent-web` 已发布到 npm 后，可以直接运行：
 
 ```bash
 npx @maddiemo1/pi-agent-web@latest
 ```
 
-或全局安装后运行：
+也可以全局安装后运行：
 
 ```bash
 npm install -g @maddiemo1/pi-agent-web
