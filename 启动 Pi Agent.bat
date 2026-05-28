@@ -43,7 +43,7 @@ echo.
 
 echo Checking system dependencies...
 echo.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%APP_DIR%scripts\bootstrap-deps.ps1" -ProjectDir "%APP_DIR%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%APP_DIR%scripts\bootstrap-deps.ps1" -ProjectDir "%APP_DIR%."
 if errorlevel 1 (
   echo.
   echo System dependency setup failed.
