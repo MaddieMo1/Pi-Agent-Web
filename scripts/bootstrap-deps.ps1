@@ -29,6 +29,25 @@ function Refresh-Path {
   $env:Path = ($paths -join ";")
 }
 
+function Set-PortableUvEnvironment {
+  $stateDir = Join-Path $ProjectDir ".pi-bootstrap"
+  $tempDir = Join-Path $stateDir "tmp"
+  $cacheDir = Join-Path $stateDir "uv-cache"
+
+  try {
+    New-Item -ItemType Directory -Force -Path $tempDir, $cacheDir | Out-Null
+  } catch {
+    $stateDir = Join-Path $env:LOCALAPPDATA "Pi-Agent-Web\bootstrap"
+    $tempDir = Join-Path $stateDir "tmp"
+    $cacheDir = Join-Path $stateDir "uv-cache"
+    New-Item -ItemType Directory -Force -Path $tempDir, $cacheDir | Out-Null
+  }
+
+  $env:TEMP = $tempDir
+  $env:TMP = $tempDir
+  $env:UV_CACHE_DIR = $cacheDir
+}
+
 function Install-WithWinget {
   param(
     [string]$Id,
@@ -49,6 +68,7 @@ function Install-WithWinget {
 
 Set-Location $ProjectDir
 Refresh-Path
+Set-PortableUvEnvironment
 
 Write-Step "Checking Node.js and npm"
 if (-not (Test-Command node) -or -not (Test-Command npm)) {
