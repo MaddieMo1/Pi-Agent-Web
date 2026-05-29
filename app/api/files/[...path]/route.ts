@@ -102,6 +102,10 @@ function filePathFromSegments(segments: string[]): string {
   return "/" + joined.replace(/^\/+/, "");
 }
 
+function filePathFromEncodedPath(encodedPath: string): string {
+  return filePathFromSegments(encodedPath.split("/").filter(Boolean).map(decodeURIComponent));
+}
+
 async function getAllowedRoots(): Promise<Set<string>> {
   const now = Date.now();
   const cached = globalThis.__piAllowedRootsCache;
@@ -109,6 +113,7 @@ async function getAllowedRoots(): Promise<Set<string>> {
 
   const sessions = await listAllSessions();
   const roots = new Set<string>();
+  roots.add(process.cwd());
   for (const s of sessions) {
     if (s.cwd) roots.add(s.cwd);
   }
@@ -252,8 +257,12 @@ export async function GET(
     const { path: segments } = await params;
     const filePath = filePathFromSegments(segments);
     const type = request.nextUrl.searchParams.get("type") ?? "list";
+    const rootParam = request.nextUrl.searchParams.get("root");
 
     const allowedRoots = await getAllowedRoots();
+    if (rootParam) {
+      allowedRoots.add(filePathFromEncodedPath(rootParam));
+    }
     if (!isPathAllowed(filePath, allowedRoots)) {
       return NextResponse.json({ error: "访问被拒绝" }, { status: 403 });
     }

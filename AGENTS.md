@@ -3,11 +3,11 @@
 ## Quick Start
 
 ```bash
-npm run dev   # port 3030
+npm run dev   # port 30141
 ```
 
-Typecheck: `node_modules/.bin/tsc --noEmit`  
-Lint: `node node_modules/next/dist/bin/next lint`  
+Typecheck: `node node_modules/typescript/bin/tsc --noEmit`  
+Lint: `node node_modules/eslint/bin/eslint.js .`  
 **Never run `next build` during dev** — pollutes `.next/` and breaks `npm run dev`.
 
 ---

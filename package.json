@@ -18,7 +18,7 @@
     "package.json"
   ],
   "scripts": {
-    "dev": "next dev -p 30141",
+    "dev": "next dev --webpack -p 30141",
     "build": "next build --webpack",
     "start": "next start -p 30141",
     "lint": "eslint .",

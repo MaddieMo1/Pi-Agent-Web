@@ -20,6 +20,21 @@ function Test-Command {
   return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Test-NodeVersionAtLeast {
+  param([version]$MinimumVersion)
+
+  if (-not (Test-Command node)) {
+    return $false
+  }
+
+  try {
+    $current = [version]((node --version).TrimStart("v"))
+    return $current -ge $MinimumVersion
+  } catch {
+    return $false
+  }
+}
+
 function Refresh-Path {
   $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
   $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -27,6 +42,25 @@ function Refresh-Path {
   $paths = @($env:Path, $machinePath, $userPath, $localBin) |
     Where-Object { $_ -and $_.Trim().Length -gt 0 }
   $env:Path = ($paths -join ";")
+}
+
+function Set-PortableUvEnvironment {
+  $stateDir = Join-Path $ProjectDir ".pi-bootstrap"
+  $tempDir = Join-Path $stateDir "tmp"
+  $cacheDir = Join-Path $stateDir "uv-cache"
+
+  try {
+    New-Item -ItemType Directory -Force -Path $tempDir, $cacheDir | Out-Null
+  } catch {
+    $stateDir = Join-Path $env:LOCALAPPDATA "Pi-Agent-Web\bootstrap"
+    $tempDir = Join-Path $stateDir "tmp"
+    $cacheDir = Join-Path $stateDir "uv-cache"
+    New-Item -ItemType Directory -Force -Path $tempDir, $cacheDir | Out-Null
+  }
+
+  $env:TEMP = $tempDir
+  $env:TMP = $tempDir
+  $env:UV_CACHE_DIR = $cacheDir
 }
 
 function Install-WithWinget {
@@ -49,14 +83,17 @@ function Install-WithWinget {
 
 Set-Location $ProjectDir
 Refresh-Path
+Set-PortableUvEnvironment
 
 Write-Step "Checking Node.js and npm"
-if (-not (Test-Command node) -or -not (Test-Command npm)) {
+$minimumNodeVersion = [version]"22.19.0"
+if (-not (Test-Command node) -or -not (Test-Command npm) -or -not (Test-NodeVersionAtLeast $minimumNodeVersion)) {
   Install-WithWinget -Id "OpenJS.NodeJS.LTS" -Name "Node.js LTS"
 }
+Refresh-Path
 
-if (-not (Test-Command node) -or -not (Test-Command npm)) {
-  throw "Node.js/npm still cannot be found after installation. Close this window and run the launcher again."
+if (-not (Test-Command node) -or -not (Test-Command npm) -or -not (Test-NodeVersionAtLeast $minimumNodeVersion)) {
+  throw "Node.js/npm still cannot be found at version >= $minimumNodeVersion after installation. Close this window and run the launcher again."
 }
 
 node --version
