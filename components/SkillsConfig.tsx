@@ -187,9 +187,11 @@ function SkillDetail({
 
 function AddSkillPanel({
   cwd,
+  installedSkillNames,
   onInstalled,
 }: {
   cwd: string;
+  installedSkillNames: Set<string>;
   onInstalled: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -264,6 +266,16 @@ function AddSkillPanel({
     scope === "global"
       ? "~/.pi/agent/skills/"
       : `${shortenPath(cwd)}/.pi/agent/skills/`;
+  const installedResultPackages = new Set<string>();
+  const matchedInstalledSkillNames = new Set<string>();
+  for (const result of results) {
+    const idx = result.package.indexOf("@");
+    const name = (idx > -1 ? result.package.slice(idx + 1) : result.package).toLowerCase();
+    if (installedSkillNames.has(name) && !matchedInstalledSkillNames.has(name)) {
+      installedResultPackages.add(result.package);
+      matchedInstalledSkillNames.add(name);
+    }
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -382,12 +394,13 @@ function AddSkillPanel({
       {results.length > 0 ? (
         <div style={{ flex: 1, overflowY: "auto" }}>
           {results.map((r) => {
-            const isInstalled = installedPkgs.has(r.package);
-            const isInstalling = installing === r.package;
             // split "owner/repo@skill" for cleaner display
             const atIdx = r.package.indexOf("@");
             const repopart = atIdx > -1 ? r.package.slice(0, atIdx) : r.package;
             const skillpart = atIdx > -1 ? r.package.slice(atIdx + 1) : null;
+            const isInstalled =
+              installedPkgs.has(r.package) || installedResultPackages.has(r.package);
+            const isInstalling = installing === r.package;
             return (
               <div
                 key={r.package}
@@ -586,6 +599,7 @@ export function SkillsConfig({
   }, []);
 
   const selectedSkill = skills.find((s) => s.filePath === selected) ?? null;
+  const installedSkillNames = new Set(skills.map((s) => s.name.toLowerCase()));
 
   return (
     <div
@@ -856,6 +870,7 @@ export function SkillsConfig({
             {addMode ? (
               <AddSkillPanel
                 cwd={cwd}
+                installedSkillNames={installedSkillNames}
                 onInstalled={() => {
                   loadSkills();
                 }}
