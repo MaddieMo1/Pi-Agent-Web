@@ -77,13 +77,36 @@ npm run lint
 
 ## Windows 一键启动
 
-在 Windows 上可以双击项目根目录的：
+在 Windows 上可以双击项目根目录的任意一个启动脚本：
 
 ```text
 启动 Pi Agent.bat
+启动 Pi Agent 国内模式.bat
 ```
 
-首次启动时脚本会自动安装依赖，然后启动开发服务，并在服务可访问后打开浏览器。
+普通模式适合网络可以正常访问 npm、GitHub 等服务的电脑。国内模式会自动使用 npm、PyPI、uv 等国内镜像，并优先使用项目内的便携依赖。
+
+首次启动时脚本会自动检查并准备依赖，然后启动开发服务，并在服务可访问后打开浏览器。当前一键启动会处理：
+
+- Node.js / npm：如果系统没有安装且没有 `winget`，会下载便携 Node.js 到项目内缓存目录。
+- Git Bash：如果系统没有安装且没有 `winget`，会优先使用 `vendor/PortableGit-*-64-bit.7z.exe` 安装到项目内缓存目录。
+- uv / uvx：用于运行 Python 相关工具，例如 PDF 读取、edge-tts 和 Tavily CLI。
+- 内置技能：启动时会把 `.agents/skills/` 下的技能同步到当前用户的 `~/.pi/agent/skills/`。
+
+随压缩包分发给其他人时，请保留这些文件和目录：
+
+```text
+.agents/skills/
+config/
+scripts/
+vendor/
+启动 Pi Agent.bat
+启动 Pi Agent 国内模式.bat
+package.json
+package-lock.json
+```
+
+如果需要让 Tavily 搜索开箱可用，可以复制 `config/tavily-api-key.example.txt` 为 `config/tavily-api-key.txt`，并在第一行填写 Tavily API key。不要把真实 key 提交到公开仓库。
 
 如需创建桌面快捷方式，可以运行：
 
@@ -152,7 +175,12 @@ lib/
 scripts/
   bootstrap-deps.ps1
   create-desktop-shortcut.ps1
+  launch.bat
   wait-and-open.ps1
+
+vendor/
+  README.txt
+  PortableGit-*-64-bit.7z.exe
 ```
 
 ## 工作原理
@@ -179,7 +207,7 @@ Browser
 - Fork 后需要销毁旧 wrapper，避免旧 session id 指向 fork 后的新状态
 - toolCall 字段需要经过 `lib/normalize.ts` 统一格式
 - 新旧 compaction 事件都要兼容：`compaction_start/end` 和 `auto_compaction_start/end`
-- `.agents/`、`node_modules/`、`.next/`、`.env*` 等本地目录和敏感文件不会提交到仓库
+- `.agents/skills/` 是随项目分发的内置技能；其他 `.agents/` 内容、`node_modules/`、`.next/`、`.env*` 等本地目录和敏感文件不会提交到仓库
 
 ## 发布状态
 
