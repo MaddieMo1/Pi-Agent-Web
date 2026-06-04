@@ -27,9 +27,10 @@ interface Props {
   onAtMention?: (relativePath: string) => void;
 }
 
-async function fetchEntries(dirPath: string): Promise<FileNode[]> {
+async function fetchEntries(dirPath: string, rootPath = dirPath): Promise<FileNode[]> {
   const encoded = encodeFilePathForApi(dirPath);
-  const res = await fetch(`/api/files/${encoded}?type=list`);
+  const root = encodeURIComponent(encodeFilePathForApi(rootPath));
+  const res = await fetch(`/api/files/${encoded}?type=list&root=${root}`);
   if (!res.ok) return [];
   const data = await res.json() as { entries?: FileEntry[] };
   return (data.entries ?? []).map((e) => ({
@@ -71,7 +72,7 @@ function TreeNode({
     if (loaded && !force) return;
     setLoading(true);
     try {
-      const entries = await fetchEntries(node.fullPath);
+      const entries = await fetchEntries(node.fullPath, cwd);
       setChildren(entries);
       setLoaded(true);
     } catch {
@@ -79,7 +80,7 @@ function TreeNode({
     } finally {
       setLoading(false);
     }
-  }, [loaded, node.fullPath]);
+  }, [loaded, node.fullPath, cwd]);
 
   // When refreshKey causes a re-render with the same node identity, reload open dirs
   const prevLoadedRef = useRef(loaded);
@@ -232,7 +233,7 @@ export function FileExplorer({ cwd, onOpenFile, refreshKey, onAtMention }: Props
 
     setLoading(cwdChanged);
     setError(null);
-    fetchEntries(cwd)
+    fetchEntries(cwd, cwd)
       .then((entries) => setRoots(entries))
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));

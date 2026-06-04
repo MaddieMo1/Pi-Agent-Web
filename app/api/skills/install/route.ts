@@ -8,11 +8,17 @@ const ANSI_RE = /\x1B\[[0-9;]*m/g;
 // POST /api/skills/install  body: { package: string; scope: "global" | "project"; cwd?: string }
 export async function POST(req: Request) {
   try {
-    const { package: pkg, scope, cwd } = await req.json() as { package?: string; scope?: string; cwd?: string };
-    if (!pkg?.trim()) return NextResponse.json({ error: "缺少 package" }, { status: 400 });
+    const { package: pkg, scope, cwd } = (await req.json()) as {
+      package?: string;
+      scope?: string;
+      cwd?: string;
+    };
+    if (!pkg?.trim()) {
+      return NextResponse.json({ error: "Missing package" }, { status: 400 });
+    }
 
     const isGlobal = scope !== "project";
-    const args = ["skills", "add", pkg.trim(), "-y", "--agent", "pi"];
+    const args = ["skills", "add", pkg.trim(), "-y", "--agent", "pi", "--copy"];
     if (isGlobal) args.push("-g");
 
     console.log(`[skills/install] running: npx ${args.join(" ")}`);
@@ -23,10 +29,6 @@ export async function POST(req: Request) {
     });
 
     const output = (stdout + stderr).replace(ANSI_RE, "");
-    const success = /Installation complete|Installed \d+ skill/.test(output);
-    if (!success) {
-      return NextResponse.json({ error: output.slice(-300) || "安装失败" }, { status: 500 });
-    }
     return NextResponse.json({ success: true, output });
   } catch (e: unknown) {
     const err = e as { stdout?: string; stderr?: string; message?: string };

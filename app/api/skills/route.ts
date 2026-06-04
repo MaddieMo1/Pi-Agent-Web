@@ -1,8 +1,43 @@
 import { NextResponse } from "next/server";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 import { DefaultResourceLoader, getAgentDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
 
 export const dynamic = "force-dynamic";
+
+function getBundledSkills(existingNames: Set<string>) {
+  const skillsDir = join(process.cwd(), ".agents", "skills");
+  if (!existsSync(skillsDir)) return [];
+
+  return readdirSync(skillsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      const baseDir = join(skillsDir, entry.name);
+      const filePath = join(baseDir, "SKILL.md");
+      if (!existsSync(filePath) || existingNames.has(entry.name)) return null;
+
+      const content = readFileSync(filePath, "utf8");
+      const { frontmatter } = parseFrontmatter<Record<string, unknown>>(content);
+      const name = typeof frontmatter.name === "string" ? frontmatter.name : entry.name;
+      if (existingNames.has(name)) return null;
+      existingNames.add(name);
+
+      return {
+        name,
+        description: typeof frontmatter.description === "string" ? frontmatter.description : "",
+        filePath,
+        baseDir,
+        sourceInfo: {
+          source: "bundled",
+          scope: "project",
+          path: filePath,
+          baseDir: join(process.cwd(), ".agents"),
+        },
+        disableModelInvocation: Boolean(frontmatter["disable-model-invocation"]),
+      };
+    })
+    .filter((skill): skill is NonNullable<typeof skill> => skill !== null);
+}
 
 // GET /api/skills?cwd=<path>
 // Uses DefaultResourceLoader (same logic as AgentSession startup) so settings.json
@@ -16,7 +51,8 @@ export async function GET(req: Request) {
     const loader = new DefaultResourceLoader({ cwd, agentDir: getAgentDir() });
     await loader.reload();
     const { skills, diagnostics } = loader.getSkills();
-    return NextResponse.json({ skills, diagnostics });
+    const names = new Set(skills.map((skill) => skill.name));
+    return NextResponse.json({ skills: [...skills, ...getBundledSkills(names)], diagnostics });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 500 });
   }

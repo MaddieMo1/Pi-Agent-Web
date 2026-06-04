@@ -23,7 +23,9 @@
 # misc
 .DS_Store
 *.pem
-/.agents/
+/.agents/*
+!/.agents/skills/
+!/.agents/skills/**
 
 # debug
 npm-debug.log*
@@ -41,3 +43,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .factory
+.pi-bootstrap/

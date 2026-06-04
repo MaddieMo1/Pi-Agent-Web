@@ -11,7 +11,6 @@ try {
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@earendil-works/pi-coding-agent", "@earendil-works/pi-ai"],
-  allowedDevOrigins: ['192.168.*.*'],
   devIndicators: false,
   env: {
     NEXT_PUBLIC_APP_VERSION: version,
