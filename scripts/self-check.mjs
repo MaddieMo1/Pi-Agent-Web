@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { deleteSessionFileWithReparent } from "../lib/session-actions.ts";
+import { createSessionMergeSummary, MERGE_CUSTOM_TYPE } from "../lib/session-merge.ts";
 import { normalizeToolCalls } from "../lib/normalize.ts";
 
 const requiredPackagePaths = [
@@ -139,4 +140,45 @@ test("deleting a session reparents only direct child session files", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("creates merge summaries from source-only session entries", () => {
+  const shared = {
+    type: "message",
+    id: "shared-user",
+    parentId: null,
+    timestamp: "2026-01-01T00:00:00.000Z",
+    message: { role: "user", content: "shared prompt" },
+  };
+  const sourceOnly = {
+    type: "message",
+    id: "source-only",
+    parentId: "shared-user",
+    timestamp: "2026-01-01T00:01:00.000Z",
+    message: { role: "assistant", content: [{ type: "text", text: "source branch answer" }], model: "m", provider: "p" },
+  };
+
+  const summary = createSessionMergeSummary([shared, sourceOnly], [shared], "source session");
+  assert.ok(summary);
+  assert.equal(summary.sourceUniqueEntryCount, 1);
+  assert.equal(summary.summarizedItemCount, 1);
+  assert.match(summary.content, /分支会话合并摘要/);
+  assert.match(summary.content, /source branch answer/);
+  assert.equal(createSessionMergeSummary([shared], [shared], "source session"), null);
+});
+
+test("merge summaries include custom merge message entries from source branches", () => {
+  const sourceOnlyCustom = {
+    type: "custom_message",
+    id: "merge-source",
+    parentId: null,
+    timestamp: "2026-01-01T00:01:00.000Z",
+    customType: MERGE_CUSTOM_TYPE,
+    content: "nested merge note",
+    display: true,
+  };
+
+  const summary = createSessionMergeSummary([sourceOnlyCustom], [], "source session");
+  assert.ok(summary);
+  assert.match(summary.content, /nested merge note/);
 });

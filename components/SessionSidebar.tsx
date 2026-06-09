@@ -14,6 +14,7 @@ interface Props {
   onInitialRestoreDone?: () => void;
   refreshKey?: number;
   onSessionDeleted?: (sessionId: string) => void;
+  onSessionMerged?: (sourceSessionId: string) => Promise<void>;
   selectedCwd?: string | null;
   onCwdChange?: (cwd: string | null) => void;
   onOpenFile?: (filePath: string, fileName: string) => void;
@@ -198,7 +199,7 @@ function PiAgentTitle() {
   );
 }
 
-export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onAtMention }: Props) {
+export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, initialSessionId, onInitialRestoreDone, refreshKey, onSessionDeleted, onSessionMerged, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, explorerRefreshKey, onAtMention }: Props) {
   const [allSessions, setAllSessions] = useState<SessionInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -770,6 +771,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onSessionDeleted?.(id);
               loadSessions();
             }}
+            onSessionMerged={async (id) => {
+              await onSessionMerged?.(id);
+              loadSessions();
+            }}
             depth={0}
           />
         ))}
@@ -872,6 +877,7 @@ function SessionTreeItem({
   onSelectSession,
   onRenamed,
   onSessionDeleted,
+  onSessionMerged,
   depth,
 }: {
   node: SessionTreeNode;
@@ -879,6 +885,7 @@ function SessionTreeItem({
   onSelectSession: (s: SessionInfo) => void;
   onRenamed?: () => void;
   onSessionDeleted?: (id: string) => void;
+  onSessionMerged?: (id: string) => Promise<void>;
   depth: number;
 }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -904,6 +911,7 @@ function SessionTreeItem({
           onClick={() => onSelectSession(node.session)}
           onRenamed={onRenamed}
           onDeleted={(id) => onSessionDeleted?.(id)}
+          onMerged={onSessionMerged}
           depth={depth}
           hasChildren={hasChildren}
           collapsed={collapsed}
@@ -920,6 +928,7 @@ function SessionTreeItem({
               onSelectSession={onSelectSession}
               onRenamed={onRenamed}
               onSessionDeleted={onSessionDeleted}
+              onSessionMerged={onSessionMerged}
               depth={depth + 1}
             />
           ))}
@@ -935,6 +944,7 @@ function SessionItem({
   onClick,
   onRenamed,
   onDeleted,
+  onMerged,
   depth = 0,
   hasChildren = false,
   collapsed = false,
@@ -945,6 +955,7 @@ function SessionItem({
   onClick: () => void;
   onRenamed?: () => void;
   onDeleted?: (id: string) => void;
+  onMerged?: (id: string) => Promise<void>;
   depth?: number;
   hasChildren?: boolean;
   collapsed?: boolean;
@@ -955,6 +966,7 @@ function SessionItem({
   const [renameValue, setRenameValue] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [merging, setMerging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const title = session.name || session.firstMessage.slice(0, 50) || session.id.slice(0, 12);
@@ -1004,12 +1016,25 @@ function SessionItem({
     setConfirmDelete(false);
   }, []);
 
+  const handleMerge = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onMerged || merging) return;
+    setMerging(true);
+    try {
+      await onMerged(session.id);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : String(error));
+    } finally {
+      setMerging(false);
+    }
+  }, [merging, onMerged, session.id]);
+
   // Fixed-height outer wrapper — content swaps in place so the list never reflows
   const ITEM_HEIGHT = 54;
 
   return (
     <div
-      onClick={confirmDelete || renaming ? undefined : onClick}
+      onClick={confirmDelete || renaming || merging ? undefined : onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); }}
       style={{
@@ -1018,7 +1043,7 @@ function SessionItem({
         alignItems: "center",
         paddingLeft: depth > 0 ? depth * 12 + 14 : 14,
         paddingRight: 8,
-        cursor: confirmDelete || renaming ? "default" : "pointer",
+        cursor: confirmDelete || renaming || merging ? "default" : "pointer",
         background: confirmDelete
           ? "rgba(239,68,68,0.06)"
           : isSelected ? "var(--bg-selected)" : hovered ? "var(--bg-hover)" : "transparent",
@@ -1026,7 +1051,7 @@ function SessionItem({
           ? "2px solid #ef4444"
           : isSelected ? "2px solid var(--accent)" : "2px solid transparent",
         transition: "background 0.1s",
-        opacity: deleting ? 0.5 : 1,
+        opacity: deleting || merging ? 0.5 : 1,
         gap: 6,
         overflow: "hidden",
       }}
@@ -1153,6 +1178,40 @@ function SessionItem({
           {/* Action buttons — shown on hover */}
           {hovered && (
             <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+              {onMerged && !isSelected && (
+                <button
+                  onClick={handleMerge}
+                  disabled={merging}
+                  title={merging ? "正在合并…" : "将此独立会话摘要合并到当前会话"}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 32, height: 32, padding: 0,
+                    background: "var(--bg-hover)", border: "1px solid var(--border)",
+                    borderRadius: 7, color: merging ? "var(--accent)" : "var(--text-muted)",
+                    cursor: merging ? "not-allowed" : "pointer", flexShrink: 0,
+                    transition: "background 0.12s, color 0.12s, border-color 0.12s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (merging) return;
+                    e.currentTarget.style.background = "var(--bg-selected)";
+                    e.currentTarget.style.color = "var(--accent)";
+                    e.currentTarget.style.borderColor = "rgba(37,99,235,0.35)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--bg-hover)";
+                    e.currentTarget.style.color = merging ? "var(--accent)" : "var(--text-muted)";
+                    e.currentTarget.style.borderColor = "var(--border)";
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 7h8" />
+                    <path d="M8 12h6" />
+                    <path d="M8 17h4" />
+                    <path d="M18 15l3 3-3 3" />
+                    <path d="M14 18h7" />
+                  </svg>
+                </button>
+              )}
               <button
                 onClick={startRename}
                 title="重命名"

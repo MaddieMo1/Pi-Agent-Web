@@ -148,6 +148,19 @@ export class AgentSessionWrapper {
         return { cancelled: result.cancelled };
       }
 
+      case "append_custom_message": {
+        if (this.inner.isStreaming || this.inner.isCompacting) {
+          throw new Error("当前会话正在运行，暂时不能合并分支会话");
+        }
+        const entryId = this.inner.sessionManager.appendCustomMessageEntry(
+          command.customType as string,
+          command.content as string,
+          command.display as boolean,
+          command.details,
+        );
+        return { entryId };
+      }
+
       case "set_thinking_level": {
         const level = command.level as string;
         this.inner.setThinkingLevel(level);

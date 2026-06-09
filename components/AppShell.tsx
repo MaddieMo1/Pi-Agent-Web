@@ -213,6 +213,21 @@ export function AppShell() {
     }
   }, [refreshSessions, reloadCurrentChat, selectedSession, router]);
 
+  const handleSessionMerged = useCallback(async (sourceSessionId: string) => {
+    if (!selectedSession) return;
+    const res = await fetch(`/api/sessions/${encodeURIComponent(selectedSession.id)}/merge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sourceSessionId }),
+    });
+    const body = await res.json().catch(() => ({})) as { error?: string };
+    if (!res.ok || body.error) {
+      throw new Error(body.error ?? `HTTP ${res.status}`);
+    }
+    refreshSessions();
+    reloadCurrentChat();
+  }, [refreshSessions, reloadCurrentChat, selectedSession]);
+
   const handleOpenFile = useCallback((filePath: string, fileName: string) => {
     const tabId = `file:${filePath}`;
     setFileTabs((prev) => {
@@ -254,6 +269,7 @@ export function AppShell() {
         onInitialRestoreDone={handleInitialRestoreDone}
         refreshKey={refreshKey}
         onSessionDeleted={handleSessionDeleted}
+        onSessionMerged={selectedSession ? handleSessionMerged : undefined}
         selectedCwd={selectedSession?.cwd ?? newSessionCwd ?? null}
         onCwdChange={handleCwdChange}
         onOpenFile={handleOpenFile}

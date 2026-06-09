@@ -12,6 +12,7 @@ import type {
   UserMessage,
   AssistantMessage,
   ToolResultMessage,
+  CustomMessage,
   AssistantContentBlock,
   TextContent,
   ImageContent,
@@ -73,11 +74,44 @@ export function MessageView({ message, isStreaming, toolResults, modelNames, ent
   if (message.role === "assistant") {
     return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} showTimestamp={showTimestamp} prevTimestamp={prevTimestamp} />;
   }
+  if (message.role === "custom") {
+    return <CustomMessageView message={message as CustomMessage} />;
+  }
   if (message.role === "toolResult") {
     // Rendered inline under its toolCall — skip standalone rendering if paired
     return null;
   }
   return null;
+}
+
+function CustomMessageView({ message }: { message: CustomMessage }) {
+  if (!message.display) return null;
+  const content = typeof message.content === "string"
+    ? message.content
+    : message.content
+        .filter((b): b is TextContent => b.type === "text")
+        .map((b) => b.text)
+        .join("\n");
+  if (!content.trim()) return null;
+
+  return (
+    <div style={{
+      marginBottom: 16,
+      border: "1px solid rgba(37,99,235,0.25)",
+      background: "rgba(37,99,235,0.05)",
+      borderRadius: 7,
+      padding: "10px 12px",
+      color: "var(--text-muted)",
+      fontSize: 13,
+      lineHeight: 1.6,
+      whiteSpace: "pre-wrap",
+    }}>
+      <div style={{ fontSize: 11, color: "var(--accent)", marginBottom: 6, fontWeight: 600 }}>
+        {message.customType === "session_merge_summary" ? "分支会话合并" : message.customType}
+      </div>
+      {content}
+    </div>
+  );
 }
 
 function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAssistantEntryId, onEditContent }: {

@@ -217,6 +217,26 @@ npm 包已发布：
 @maddie1/pi-agent-web@0.6.11
 ```
 
+## 分支会话合并
+
+左侧缩进显示的是独立会话副本。可以在已打开目标会话时，将另一个独立会话副本摘要合并到当前会话：
+
+1. 先打开要作为目标的当前会话。
+2. 在左侧会话列表中 hover 另一个非当前会话。
+3. 点击“合并到当前会话”按钮。
+4. 系统会把来源会话中当前会话没有的内容整理为一条“分支会话合并”消息，并写入当前会话上下文。
+
+当前实现是摘要合并，不会重写 `.jsonl` 的 entry tree，也不会修改来源会话。这样更安全，后续继续对话时模型可以读取合并摘要。
+
+相关实现：
+
+```text
+app/api/sessions/[id]/merge/route.ts  POST { sourceSessionId }
+lib/session-merge.ts                  生成并追加分支会话合并摘要
+components/SessionSidebar.tsx         左侧会话合并入口
+components/MessageView.tsx            渲染合并摘要 custom message
+```
+
 ## License
 
 本项目基于 MIT License 开源，详见 [LICENSE](./LICENSE)。

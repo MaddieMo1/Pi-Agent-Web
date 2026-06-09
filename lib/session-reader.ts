@@ -103,6 +103,10 @@ export function buildTree(entries: SessionEntry[]): SessionTreeNode[] {
   return roots;
 }
 
+function contributesContextMessage(entry: SessionEntry): boolean {
+  return entry.type === "message" || entry.type === "custom_message" || entry.type === "branch_summary";
+}
+
 export function buildSessionContext(entries: SessionEntry[], leafId?: string | null): SessionContext {
   const byId = new Map<string, SessionEntry>();
   for (const e of entries) byId.set(e.id, e);
@@ -150,14 +154,14 @@ export function buildSessionContext(entries: SessionEntry[], leafId?: string | n
       : -1;
     const startIdx = firstKeptIdx >= 0 ? firstKeptIdx : compactionIdx;
     for (let i = startIdx; i < compactionIdx; i++) {
-      if (path[i].type === "message") entryIds.push(path[i].id);
+      if (contributesContextMessage(path[i])) entryIds.push(path[i].id);
     }
     for (let i = compactionIdx + 1; i < path.length; i++) {
-      if (path[i].type === "message") entryIds.push(path[i].id);
+      if (contributesContextMessage(path[i])) entryIds.push(path[i].id);
     }
   } else {
     for (const e of path) {
-      if (e.type === "message") entryIds.push(e.id);
+      if (contributesContextMessage(e)) entryIds.push(e.id);
     }
   }
 
@@ -187,5 +191,4 @@ export function getLeafId(entries: SessionEntry[]): string | null {
   if (entries.length === 0) return null;
   return entries[entries.length - 1].id;
 }
-
 
