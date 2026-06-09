@@ -230,7 +230,7 @@ Browser
 npm 包已发布：
 
 ```text
-@maddie1/pi-agent-web@0.6.11
+@maddie1/pi-agent-web@0.6.12
 ```
 
 ## 🧬 分支会话合并
