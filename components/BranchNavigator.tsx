@@ -243,7 +243,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
   const noBranchReason = !hasSession
     ? "当前没有活动会话"
     : !hasBranch(tree)
-      ? "此会话暂无分支"
+      ? "此会话暂无会话内分支"
       : null;
 
   // Find first meaningful node (skip pure linear prefix)
@@ -293,7 +293,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
           onMouseLeave={(e) => { e.currentTarget.style.color = open ? "var(--text)" : "var(--text-muted)"; }}
         >
           {branchIcon}
-          <span>分支</span>
+          <span>会话内分支</span>
         </button>
         {open && dropdownPos && (
           <div style={{
@@ -350,7 +350,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
         }}
       >
         {branchIcon}
-        <span style={{ color: "var(--text-muted)" }}>分支</span>
+        <span style={{ color: "var(--text-muted)" }}>会话内分支</span>
         {chevron}
       </button>
 
@@ -382,7 +382,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
             </div>
           ) : (
             <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
-              {noBranchReason ?? "此会话暂无分支"}
+              {noBranchReason ?? "此会话暂无会话内分支"}
             </div>
           )}
         </div>
