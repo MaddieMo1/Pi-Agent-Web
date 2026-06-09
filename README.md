@@ -1,12 +1,12 @@
-# Pi Agent Web
+# 🤖 Pi Agent Web
 
 Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在浏览器中查看历史会话、继续对话、管理模型配置、浏览工作目录文件，并通过 SSE 实时显示 Agent 的流式输出和工具调用。
 
-仓库地址：[MaddieMo1/Pi-Agent-Web](https://github.com/MaddieMo1/Pi-Agent-Web)
+📦 仓库地址：[MaddieMo1/Pi-Agent-Web](https://github.com/MaddieMo1/Pi-Agent-Web)
 
-## 快速开始
+## ⚡ 快速开始
 
-### 直接运行 npm 包
+### 🚀 直接运行 npm 包
 
 ```bash
 npx @maddie1/pi-agent-web@latest
@@ -24,7 +24,7 @@ http://localhost:30141
 npx @maddie1/pi-agent-web@latest --registry https://registry.npmjs.org
 ```
 
-### 全局安装
+### 🌐 全局安装
 
 ```bash
 npm install -g @maddie1/pi-agent-web
@@ -51,7 +51,7 @@ pi-web -p 8080 -H 127.0.0.1
 PORT=8080 pi-web
 ```
 
-## 运行当前仓库代码
+## 🛠️ 运行当前仓库代码
 
 ```bash
 git clone https://github.com/MaddieMo1/Pi-Agent-Web.git
@@ -75,7 +75,7 @@ npm run lint
 
 开发时不要运行 `next build`，它会生成 `.next/` 构建产物，可能影响本地开发服务。发布 npm 包前才需要构建。
 
-## Windows 一键启动
+## 🪟 Windows 一键启动
 
 在 Windows 上可以双击项目根目录的任意一个启动脚本：
 
@@ -88,10 +88,10 @@ npm run lint
 
 首次启动时脚本会自动检查并准备依赖，然后启动开发服务，并在服务可访问后打开浏览器。当前一键启动会处理：
 
-- Node.js / npm：如果系统没有安装且没有 `winget`，会下载便携 Node.js 到项目内缓存目录。
-- Git Bash：如果系统没有安装且没有 `winget`，会优先使用 `vendor/PortableGit-*-64-bit.7z.exe` 安装到项目内缓存目录。
-- uv / uvx：用于运行 Python 相关工具，例如 PDF 读取、edge-tts 和 Tavily CLI。
-- 内置技能：启动时会把 `.agents/skills/` 下的技能同步到当前用户的 `~/.pi/agent/skills/`。
+- 🟢 Node.js / npm：如果系统没有安装且没有 `winget`，会下载便携 Node.js 到项目内缓存目录。
+- 🔧 Git Bash：如果系统没有安装且没有 `winget`，会优先使用 `vendor/PortableGit-*-64-bit.7z.exe` 安装到项目内缓存目录。
+- 🐍 uv / uvx：用于运行 Python 相关工具，例如 PDF 读取、edge-tts 和 Tavily CLI。
+- 🧩 内置技能：启动时会把 `.agents/skills/` 下的技能同步到当前用户的 `~/.pi/agent/skills/`。
 
 随压缩包分发给其他人时，请保留这些文件和目录：
 
@@ -120,23 +120,23 @@ npm run package:source
 powershell -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1
 ```
 
-## 主要功能
+## ✨ 主要功能
 
-- 会话浏览：按工作目录分组显示本地 Pi Agent 会话
-- 实时对话：通过 SSE 显示 Agent 流式响应
-- 工具调用显示：展示 tool call 和 tool result
-- 会话 Fork：从某条用户消息创建新的独立会话
-- 会话内分支：在同一个 `.jsonl` 会话文件内切换不同分支
-- 分支导航：可视化切换同一会话内的多个后续路径
-- 分支会话合并：将独立会话副本的新增内容摘要写入当前会话上下文
-- 会话删除整理：删除父会话时，直接子会话会自动挂到上一级，避免侧边栏树断裂
-- 模型配置：查看和编辑本地模型配置
-- 工具预设：控制新会话可用的工具集合
-- 会话压缩：支持手动或自动 compaction 状态展示
-- 文件浏览：在侧边栏浏览当前工作目录文件并在标签页中打开
-- 源码打包：通过 `npm run package:source` 生成适合转发给他人的压缩包
+- 🗂️ 会话浏览：按工作目录分组显示本地 Pi Agent 会话
+- 💬 实时对话：通过 SSE 显示 Agent 流式响应
+- 🧰 工具调用显示：展示 tool call 和 tool result
+- 🌿 会话 Fork：从某条用户消息创建新的独立会话
+- 🧭 会话内分支：在同一个 `.jsonl` 会话文件内切换不同分支
+- 🔀 分支导航：可视化切换同一会话内的多个后续路径
+- 🧬 分支会话合并：将独立会话副本的新增内容摘要写入当前会话上下文
+- 🧹 会话删除整理：删除父会话时，直接子会话会自动挂到上一级，避免侧边栏树断裂
+- 🧠 模型配置：查看和编辑本地模型配置
+- 🛡️ 工具预设：控制新会话可用的工具集合
+- 🗜️ 会话压缩：支持手动或自动 compaction 状态展示
+- 📁 文件浏览：在侧边栏浏览当前工作目录文件并在标签页中打开
+- 📦 源码打包：通过 `npm run package:source` 生成适合转发给他人的压缩包
 
-## 数据位置
+## 🗄️ 数据位置
 
 Pi Agent Web 默认读取本地 Pi Agent 会话目录：
 
@@ -156,7 +156,7 @@ PI_CODING_AGENT_DIR=/path/to/agent-dir npm run dev
 ~/.pi/agent/sessions/<encoded-cwd>/<timestamp>_<uuid>.jsonl
 ```
 
-## 项目结构
+## 🧱 项目结构
 
 ```text
 app/
@@ -196,7 +196,7 @@ vendor/
   PortableGit-*-64-bit.7z.exe
 ```
 
-## 工作原理
+## 🔄 工作原理
 
 历史会话浏览是只读流程，服务端直接解析 `.jsonl` 文件，不会创建 AgentSession。
 
@@ -212,7 +212,7 @@ Browser
   -> ~/.pi/agent/sessions/*.jsonl
 ```
 
-## 开发注意事项
+## ✅ 开发注意事项
 
 - 常用自检命令：`npm test`、`node node_modules/typescript/bin/tsc --noEmit`、`node node_modules/eslint/bin/eslint.js .`
 - 历史会话浏览走 `lib/session-reader.ts`
@@ -225,7 +225,7 @@ Browser
 - 新旧 compaction 事件都要兼容：`compaction_start/end` 和 `auto_compaction_start/end`
 - `.agents/skills/` 是随项目分发的内置技能；其他 `.agents/` 内容、`node_modules/`、`.next/`、`.env*` 等本地目录和敏感文件不会提交到仓库
 
-## 发布状态
+## 📣 发布状态
 
 npm 包已发布：
 
@@ -233,7 +233,7 @@ npm 包已发布：
 @maddie1/pi-agent-web@0.6.11
 ```
 
-## 分支会话合并
+## 🧬 分支会话合并
 
 左侧缩进显示的是独立会话副本。可以在已打开目标会话时，将另一个独立会话副本摘要合并到当前会话：
 
@@ -253,6 +253,6 @@ components/SessionSidebar.tsx         左侧会话合并入口
 components/MessageView.tsx            渲染合并摘要 custom message
 ```
 
-## License
+## 📄 License
 
 本项目基于 MIT License 开源，详见 [LICENSE](./LICENSE)。
