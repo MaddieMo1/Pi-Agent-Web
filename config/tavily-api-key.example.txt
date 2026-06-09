@@ -1,1 +1,6 @@
-你的tavily-api-key
+请把这一行替换为你的 Tavily API Key
+
+使用方法：
+1. 复制本文件，并重命名为 tavily-api-key.txt。
+2. 在 tavily-api-key.txt 的第一行填写真实 Tavily API Key。
+3. 不要把 tavily-api-key.txt 提交到公开仓库或发给其他人。
