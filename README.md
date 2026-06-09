@@ -106,6 +106,12 @@ package.json
 package-lock.json
 ```
 
+也可以直接运行项目内的打包脚本，它会按白名单生成源码压缩包，并排除 `.git`、`.next`、`node_modules`、本地密钥等不应分发的内容：
+
+```powershell
+npm run package:source
+```
+
 如果需要让 Tavily 搜索开箱可用，可以复制 `config/tavily-api-key.example.txt` 为 `config/tavily-api-key.txt`，并在第一行填写 Tavily API key。不要把真实 key 提交到公开仓库。
 
 如需创建桌面快捷方式，可以运行：
@@ -122,10 +128,13 @@ powershell -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1
 - 会话 Fork：从某条用户消息创建新的独立会话
 - 会话内分支：在同一个 `.jsonl` 会话文件内切换不同分支
 - 分支导航：可视化切换同一会话内的多个后续路径
+- 分支会话合并：将独立会话副本的新增内容摘要写入当前会话上下文
+- 会话删除整理：删除父会话时，直接子会话会自动挂到上一级，避免侧边栏树断裂
 - 模型配置：查看和编辑本地模型配置
 - 工具预设：控制新会话可用的工具集合
 - 会话压缩：支持手动或自动 compaction 状态展示
 - 文件浏览：在侧边栏浏览当前工作目录文件并在标签页中打开
+- 源码打包：通过 `npm run package:source` 生成适合转发给他人的压缩包
 
 ## 数据位置
 
@@ -168,6 +177,8 @@ components/
 
 lib/
   rpc-manager.ts      AgentSession 生命周期和 registry
+  session-actions.ts  会话删除和子会话重挂逻辑
+  session-merge.ts    分支会话合并摘要生成和追加
   session-reader.ts   解析本地 .jsonl 会话文件
   normalize.ts        标准化 toolCall 字段
   types.ts            共享类型
@@ -176,6 +187,8 @@ scripts/
   bootstrap-deps.ps1
   create-desktop-shortcut.ps1
   launch.bat
+  package-source.ps1
+  self-check.mjs
   wait-and-open.ps1
 
 vendor/
@@ -201,10 +214,13 @@ Browser
 
 ## 开发注意事项
 
+- 常用自检命令：`npm test`、`node node_modules/typescript/bin/tsc --noEmit`、`node node_modules/eslint/bin/eslint.js .`
 - 历史会话浏览走 `lib/session-reader.ts`
 - 继续对话、fork、compact 等操作走 `lib/rpc-manager.ts`
 - Next.js dev 热更新会重载模块，长期 session registry 存在 `globalThis`
 - Fork 后需要销毁旧 wrapper，避免旧 session id 指向 fork 后的新状态
+- 删除会话走 `lib/session-actions.ts`，会把直接子会话重挂到被删会话的上级
+- 源码压缩包走 `scripts/package-source.ps1` 的白名单，分发前优先使用 `npm run package:source`
 - toolCall 字段需要经过 `lib/normalize.ts` 统一格式
 - 新旧 compaction 事件都要兼容：`compaction_start/end` 和 `auto_compaction_start/end`
 - `.agents/skills/` 是随项目分发的内置技能；其他 `.agents/` 内容、`node_modules/`、`.next/`、`.env*` 等本地目录和敏感文件不会提交到仓库
