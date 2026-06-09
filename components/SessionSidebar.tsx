@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import type { SessionInfo } from "@/lib/types";
 import { FileExplorer } from "./FileExplorer";
 
+const CUSTOM_CWDS_STORAGE_KEY = "pi-agent-web:custom-cwds";
+
 interface Props {
   selectedSessionId: string | null;
   onSelectSession: (session: SessionInfo, isRestore?: boolean) => void;
@@ -205,8 +207,11 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [customPathOpen, setCustomPathOpen] = useState(false);
   const [customPathValue, setCustomPathValue] = useState("");
+  const [selectingCwd, setSelectingCwd] = useState(false);
+  const [customCwds, setCustomCwds] = useState<string[]>([]);
   const customPathInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectCwdAbortRef = useRef<AbortController | null>(null);
   const [explorerOpen, setExplorerOpen] = useState(true);
   const [explorerKey, setExplorerKey] = useState(0);
   const [sessionRefreshDone, setSessionRefreshDone] = useState(false);
@@ -251,6 +256,17 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CUSTOM_CWDS_STORAGE_KEY) || "[]") as unknown;
+      if (Array.isArray(saved)) {
+        setCustomCwds(saved.filter((item): item is string => typeof item === "string").slice(0, 5));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const restoredRef = useRef(false);
 
   useEffect(() => {
@@ -279,28 +295,86 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     }
   }, [allSessions, selectedCwd, initialSessionId, onSelectSession, onInitialRestoreDone]);
 
+  const rememberCustomCwd = useCallback((cwd: string) => {
+    setCustomCwds((prev) => {
+      const next = [cwd, ...prev.filter((item) => item !== cwd)].slice(0, 5);
+      try {
+        localStorage.setItem(CUSTOM_CWDS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
+  const selectCwd = useCallback((cwd: string, remember = false) => {
+    setSelectedCwd(cwd);
+    if (remember) rememberCustomCwd(cwd);
+  }, [rememberCustomCwd]);
+
+  const openManualPathInput = useCallback((cancelPicker = true) => {
+    selectCwdAbortRef.current?.abort();
+    selectCwdAbortRef.current = null;
+    if (cancelPicker) {
+      fetch("/api/select-cwd/cancel", { method: "POST" }).catch(() => {});
+    }
+    setSelectingCwd(false);
+    setCustomPathOpen(true);
+    setTimeout(() => customPathInputRef.current?.focus(), 0);
+  }, []);
+
   const commitCustomPath = useCallback(() => {
     const path = customPathValue.trim();
     if (path) {
-      setSelectedCwd(path);
+      selectCwd(path, true);
     }
     setCustomPathOpen(false);
     setCustomPathValue("");
     setDropdownOpen(false);
-  }, [customPathValue]);
+  }, [customPathValue, selectCwd]);
 
   const handleDefaultCwd = useCallback(async () => {
     try {
       const res = await fetch("/api/default-cwd", { method: "POST" });
       const data = await res.json() as { cwd?: string; error?: string };
       if (data.cwd) {
-        setSelectedCwd(data.cwd);
+        selectCwd(data.cwd);
         setDropdownOpen(false);
       }
     } catch {
       // ignore
     }
-  }, []);
+  }, [selectCwd]);
+
+  const handleSelectCwd = useCallback(async () => {
+    setSelectingCwd(true);
+    const controller = new AbortController();
+    selectCwdAbortRef.current = controller;
+    try {
+      const res = await fetch("/api/select-cwd", {
+        method: "POST",
+        signal: controller.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cwd: selectedCwd ?? homeDir }),
+      });
+      const data = await res.json() as { cwd?: string | null; error?: string };
+      if (data.cwd) {
+        selectCwd(data.cwd, true);
+        setCustomPathOpen(false);
+        setCustomPathValue("");
+        setDropdownOpen(false);
+        return;
+      }
+      openManualPathInput(false);
+    } catch {
+      openManualPathInput(false);
+    } finally {
+      if (selectCwdAbortRef.current === controller) {
+        selectCwdAbortRef.current = null;
+      }
+      setSelectingCwd(false);
+    }
+  }, [homeDir, openManualPathInput, selectCwd, selectedCwd]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -325,7 +399,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     onNewSession?.(tempId, selectedCwd);
   }, [selectedCwd, onNewSession]);
 
-  const recentCwds = getRecentCwds(allSessions);
+  const sessionCwds = getRecentCwds(allSessions);
+  const recentCwds = [...customCwds, ...sessionCwds.filter((cwd) => !customCwds.includes(cwd))].slice(0, 5);
   const filteredSessions = selectedCwd
     ? allSessions.filter((s) => s.cwd === selectedCwd)
     : allSessions;
@@ -480,7 +555,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 <button
                   key={cwd}
                   onClick={() => {
-                    setSelectedCwd(cwd);
+                    selectCwd(cwd);
                     setCustomPathOpen(false);
                     setCustomPathValue("");
                     setDropdownOpen(false);
@@ -546,9 +621,9 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setCustomPathOpen(true);
-                    setTimeout(() => customPathInputRef.current?.focus(), 0);
+                    handleSelectCwd();
                   }}
+                  disabled={selectingCwd}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -558,16 +633,16 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                     background: "none",
                     border: "none",
                     color: "var(--text-muted)",
-                    cursor: "pointer",
+                    cursor: selectingCwd ? "wait" : "pointer",
                     textAlign: "left",
                     fontSize: 11,
+                    opacity: selectingCwd ? 0.75 : 1,
                   }}
                 >
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" style={{ flexShrink: 0 }}>
-                    <line x1="5" y1="1" x2="5" y2="9" />
-                    <line x1="1" y1="5" x2="9" y2="5" />
+                    <path d="M1 3A1 1 0 0 1 2 2H4L5 3.5H8.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 1 8V3Z" />
                   </svg>
-                  <span>自定义路径…</span>
+                  <span>{selectingCwd ? "正在选择…" : "选择文件夹…"}</span>
                 </button>
               ) : (
                 <div style={{ padding: "6px 8px", borderTop: recentCwds.length > 0 ? "none" : undefined }}>
@@ -629,6 +704,37 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                       取消
                     </button>
                   </div>
+                </div>
+              )}
+              {selectingCwd && !customPathOpen && (
+                <div
+                  style={{
+                    padding: "8px 10px",
+                    borderTop: "1px solid var(--border)",
+                    color: "var(--text-dim)",
+                    fontSize: 11,
+                    lineHeight: 1.45,
+                  }}
+                >
+                  <div>请在弹出的窗口中选择文件夹；如果没看到，请查看任务栏或按 Alt+Tab。</div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openManualPathInput();
+                    }}
+                    style={{
+                      marginTop: 6,
+                      padding: "4px 8px",
+                      background: "var(--bg-hover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 5,
+                      color: "var(--text-muted)",
+                      fontSize: 11,
+                      cursor: "pointer",
+                    }}
+                  >
+                    改为手动输入
+                  </button>
                 </div>
               )}
             </div>
