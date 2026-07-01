@@ -1,12 +1,12 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$launcher = Get-ChildItem -LiteralPath $projectRoot -Filter "* Pi Agent.bat" -File |
-  Where-Object { $_.Name -like "*Pi Agent.bat" } |
+$launcher = Get-ChildItem -LiteralPath $projectRoot -Filter "*.bat" -File |
+  Where-Object { (Get-Content -LiteralPath $_.FullName -Raw) -like "*maddie-start.ps1*" } |
   Select-Object -First 1
 
 if (-not $launcher) {
-  throw "Launcher not found in: $projectRoot"
+  throw "Maddie Agent launcher was not found in: $projectRoot"
 }
 
 $launcherPath = $launcher.FullName

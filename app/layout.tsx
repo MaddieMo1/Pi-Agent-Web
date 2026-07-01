@@ -9,8 +9,8 @@ const notoSansMono = Noto_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pi Agent Web",
-  description: "Pi Coding Agent Web Interface",
+  title: "Maddie Agent",
+  description: "Maddie Agent Web Interface",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={notoSansMono.variable} suppressHydrationWarning>
+    <html lang="zh-CN" className={notoSansMono.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

@@ -109,6 +109,358 @@ pre, code {
   font-family: var(--font-mono);
 }
 
+.auth-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 34%),
+    var(--bg);
+}
+
+.auth-card {
+  width: min(430px, 100%);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 96%, white 4%);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+}
+
+.auth-brand {
+  min-width: 72px;
+  width: fit-content;
+  height: 40px;
+  padding: 0 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+.auth-copy {
+  margin: 18px 0 22px;
+}
+
+.auth-copy h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.auth-copy p,
+.auth-footnote {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-alert {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #b42318;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.auth-field {
+  display: grid;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.auth-field + .auth-field {
+  margin-top: 14px;
+}
+
+.auth-field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.auth-submit {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.auth-submit:hover {
+  background: var(--accent-hover);
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.auth-loading {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.auth-session {
+  position: fixed;
+  right: 12px;
+  top: 42px;
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 56px));
+  min-height: 32px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--bg-panel) 94%, var(--bg) 6%);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 12px;
+  user-select: none;
+  touch-action: none;
+}
+
+.auth-session:active {
+  cursor: grabbing;
+}
+
+.auth-session-custom-pos {
+  right: auto;
+}
+
+.auth-session-info {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.auth-avatar {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 7px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.auth-avatar.has-image {
+  background-position: center;
+  background-size: cover;
+  color: transparent;
+}
+
+.auth-session-label {
+  color: var(--text-dim);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.auth-session-user {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-session button {
+  min-height: 24px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-session button:hover {
+  background: var(--bg-hover);
+}
+
+.profile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: start end;
+  padding: 42px 14px 14px;
+  background: rgba(15, 23, 42, 0.16);
+}
+
+.profile-panel {
+  width: min(420px, calc(100vw - 28px));
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-head h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.profile-head p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.profile-message {
+  margin-bottom: 12px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.profile-message.ok {
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+}
+
+.profile-message.error {
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.08);
+  color: #b42318;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.avatar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.avatar-file-button {
+  min-height: 36px;
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.avatar-file-button:hover {
+  background: var(--bg-hover);
+}
+
+.avatar-file-button input {
+  display: none;
+}
+
+.profile-secondary {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.profile-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.profile-submit {
+  width: auto;
+  min-width: 104px;
+  min-height: 36px;
+  margin-top: 0;
+  padding: 7px 14px;
+}
+
+@media (max-width: 640px) {
+  .auth-session {
+    right: 12px;
+    top: 42px;
+    max-width: calc(100vw - 54px);
+  }
+
+  .profile-backdrop {
+    place-items: end stretch;
+    padding: 12px;
+  }
+
+  .profile-panel {
+    width: 100%;
+  }
+}
+
 /* react-markdown output styles */
 .markdown-body {
   font-size: 14px;
@@ -322,5 +674,3 @@ span.linenumber {
     display: none !important;
   }
 }
-
-

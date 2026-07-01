@@ -46,3 +46,5 @@ config/tavily-api-key.txt
 next-env.d.ts
 .factory
 .pi-bootstrap/
+.maddie-logs/
+auth-server/

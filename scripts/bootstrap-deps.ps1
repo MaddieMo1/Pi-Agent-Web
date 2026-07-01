@@ -27,6 +27,25 @@ function Test-Command {
   return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Find-GitBash {
+  $candidates = @(
+    (Join-Path $env:ProgramFiles "Git\bin\bash.exe"),
+    (Join-Path $env:ProgramFiles "Git\usr\bin\bash.exe"),
+    (Join-Path ${env:ProgramFiles(x86)} "Git\bin\bash.exe"),
+    (Join-Path ${env:ProgramFiles(x86)} "Git\usr\bin\bash.exe"),
+    (Join-Path $script:BootstrapStateDir "PortableGit\bin\bash.exe"),
+    (Join-Path $script:BootstrapStateDir "PortableGit\usr\bin\bash.exe")
+  )
+
+  foreach ($path in $candidates) {
+    if ($path -and (Test-Path -LiteralPath $path)) {
+      return $path
+    }
+  }
+
+  return $null
+}
+
 function Test-NodeVersionAtLeast {
   param([version]$MinimumVersion)
 
@@ -294,10 +313,11 @@ if (Test-Command git) {
   Write-Warn "Git is not available. Installing extra skills from GitHub may fail."
 }
 
-if (Test-Command bash) {
-  bash --version | Select-Object -First 1
+$gitBash = Find-GitBash
+if ($gitBash) {
+  & $gitBash --version | Select-Object -First 1
 } else {
-  Write-Warn "bash is not available. Bash-based tool commands may fail."
+  Write-Warn "Git Bash is not available. Bash-based tool commands may fail."
 }
 
 Write-Step "Checking uv and uvx"
