@@ -77,7 +77,36 @@ npm run lint
 
 ## 🪟 Windows 一键启动
 
-在 Windows 上可以双击项目根目录的任意一个启动脚本：
+在 Windows 上优先双击项目根目录的 Maddie 启动脚本：
+
+```text
+启动 Maddie Agent.bat
+```
+
+它会自动读取 `config/maddie-auth-url.txt` 中的授权服务地址。当前客户端包默认连接云端授权服务：
+
+```text
+http://8.163.30.111
+```
+
+如果后续换成域名或 HTTPS，只需要修改 `config/maddie-auth-url.txt`，不要在地址后面加 `/admin`。
+
+首次启动时脚本会自动检查并准备依赖，然后启动开发服务，并在服务可访问后打开浏览器。当前一键启动会处理：
+
+- 🟢 Node.js / npm：如果系统没有安装且没有 `winget`，会下载便携 Node.js 到项目内缓存目录。
+- 🔧 Git Bash：如果系统没有安装且没有 `winget`，会优先使用 `vendor/PortableGit-*-64-bit.7z.exe` 安装到项目内缓存目录。
+- 🐍 uv / uvx：用于运行 Python 相关工具，例如 PDF 读取、edge-tts 和 Tavily CLI。
+- 🧩 内置技能：启动时会把 `.agents/skills/` 下的技能同步到当前用户的 `~/.pi/agent/skills/`。
+- 🖥️ 桌面快捷方式：启动时会自动创建或更新 `Maddie Agent` 桌面快捷方式。
+
+关闭任务栏里的 Maddie Agent 窗口后，监听脚本会自动停止本地服务。也可以手动运行：
+
+```text
+停止 Maddie Agent.bat
+重启 Maddie Agent.bat
+```
+
+旧的 Pi Agent 启动脚本仍然保留给开发和兼容使用：
 
 ```text
 启动 Pi Agent.bat
@@ -86,25 +115,32 @@ npm run lint
 
 普通模式适合网络可以正常访问 npm、GitHub 等服务的电脑。国内模式会自动使用 npm、PyPI、uv 等国内镜像，并优先使用项目内的便携依赖。
 
-首次启动时脚本会自动检查并准备依赖，然后启动开发服务，并在服务可访问后打开浏览器。当前一键启动会处理：
-
-- 🟢 Node.js / npm：如果系统没有安装且没有 `winget`，会下载便携 Node.js 到项目内缓存目录。
-- 🔧 Git Bash：如果系统没有安装且没有 `winget`，会优先使用 `vendor/PortableGit-*-64-bit.7z.exe` 安装到项目内缓存目录。
-- 🐍 uv / uvx：用于运行 Python 相关工具，例如 PDF 读取、edge-tts 和 Tavily CLI。
-- 🧩 内置技能：启动时会把 `.agents/skills/` 下的技能同步到当前用户的 `~/.pi/agent/skills/`。
-
 随压缩包分发给其他人时，请保留这些文件和目录：
 
 ```text
 .agents/skills/
+app/
+bin/
+components/
 config/
+hooks/
+lib/
+public/
 scripts/
 vendor/
-启动 Pi Agent.bat
-启动 Pi Agent 国内模式.bat
+启动 Maddie Agent.bat
+停止 Maddie Agent.bat
+重启 Maddie Agent.bat
 package.json
 package-lock.json
+next.config.ts
+tsconfig.json
+tailwind.config.ts
+postcss.config.mjs
+eslint.config.mjs
 ```
+
+普通客户端分发不需要包含 `auth-server/`、`node_modules/`、`.next/`、`.git/`、`.maddie-logs/`、`.pi-bootstrap/` 和 `config/tavily-api-key.txt`。授权服务应部署在云端，客户端只通过 `config/maddie-auth-url.txt` 访问它。
 
 也可以直接运行项目内的打包脚本，它会按白名单生成源码压缩包，并排除 `.git`、`.next`、`node_modules`、本地密钥等不应分发的内容：
 
