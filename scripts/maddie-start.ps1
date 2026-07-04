@@ -69,6 +69,17 @@ if (Test-Path (Join-Path $PSScriptRoot "bootstrap-deps.ps1")) {
   & (Join-Path $PSScriptRoot "bootstrap-deps.ps1") -ProjectDir $ProjectDir
 }
 
+$env:PATH = "$ProjectDir\node_modules\.bin;$env:USERPROFILE\.local\bin;$env:ProgramFiles\nodejs;${env:ProgramFiles(x86)}\nodejs;$env:ProgramFiles\Git\cmd;$env:ProgramFiles\Git\bin;$env:PATH"
+Get-ChildItem -LiteralPath (Join-Path $ProjectDir ".pi-bootstrap") -Directory -Filter "node-v*-win-*" -ErrorAction SilentlyContinue |
+  ForEach-Object { $env:PATH = "$($_.FullName);$env:PATH" }
+$portableGitDir = Join-Path $ProjectDir ".pi-bootstrap\PortableGit"
+foreach ($relativePath in @("cmd", "bin", "usr\bin")) {
+  $path = Join-Path $portableGitDir $relativePath
+  if (Test-Path $path) {
+    $env:PATH = "$path;$env:PATH"
+  }
+}
+
 if (-not (Test-Path (Join-Path $ProjectDir "node_modules"))) {
   npm install --no-audit --no-fund
   if ($LASTEXITCODE -ne 0) {
@@ -103,8 +114,8 @@ if ($UseLocalAuth -and -not (Test-PortListening 4000)) {
 
 if (-not (Test-PortListening 30141)) {
   $env:NEXT_PUBLIC_AUTH_SERVER_URL = $AuthBaseUrl
-  Start-Process -FilePath "npm.cmd" `
-    -ArgumentList @("run", "dev") `
+  Start-Process -FilePath "node.exe" `
+    -ArgumentList @("node_modules\next\dist\bin\next", "dev", "--webpack", "-p", "30141") `
     -WorkingDirectory $ProjectDir `
     -WindowStyle Hidden `
     -RedirectStandardOutput (Join-Path $LogDir "pi-web.out.log") `
