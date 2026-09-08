@@ -14,6 +14,28 @@ Maddie Agent 登录页（本地运行截图）：使用管理员创建的账号�
 
 ![Maddie Agent 登录界面](docs/screenshots/maddie-login.png)
 
+### 模型与技能
+
+通过模型面板添加提供商，通过技能面板查看、启用和安装技能。以下用户提供的截图来自旧版（部分显示 `v0.6.11`），按钮名称、模型列表和内置技能以当前运行版本为准。
+
+![添加模型提供商](docs/screenshots/model-provider.png)
+
+![技能列表与启用开关](docs/screenshots/skills-overview.png)
+
+### 使用成果示例
+
+以下为配合技能生成的示例作品；语音播放器和视频画面是生成结果，不是工作台内置页面。
+
+**语音合成：** 使用 edge-tts 生成多语言音频及试听页面。
+
+![Edge TTS 多语言语音试听示例](docs/screenshots/edge-tts-demo.png)
+
+**视频制作：** 使用 HyperFrames 制作论文介绍动画，以下为静态画面。
+
+![论文介绍动画画面](docs/screenshots/video-result.png)
+
+完整操作步骤见 [图文使用指南](docs/usage-guide.md)，包括选择项目、配置模型、安装技能和查看生成结果。
+
 ## ⚡ 快速开始
 
 手动运行 npm 包或仓库源码前，请安装 **Node.js ≥ 22.19.0**（含 npm）。Windows 一键启动脚本会检查并准备所需环境。
