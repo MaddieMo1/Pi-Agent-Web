@@ -6,6 +6,8 @@ Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在
 
 ## ⚡ 快速开始
 
+手动运行 npm 包或仓库源码前，请安装 **Node.js ≥ 22.19.0**（含 npm）。Windows 一键启动脚本会检查并准备所需环境。
+
 ### 🚀 直接运行 npm 包
 
 ```bash
@@ -21,7 +23,7 @@ http://localhost:30141
 如果你的 npm 默认源是国内镜像，刚发布的新版本可能还没同步，可以临时指定官方源：
 
 ```bash
-npx @maddie1/pi-agent-web@latest --registry https://registry.npmjs.org
+npx --registry https://registry.npmjs.org @maddie1/pi-agent-web@latest
 ```
 
 ### 🌐 全局安装
@@ -51,14 +53,44 @@ pi-web -p 8080 -H 127.0.0.1
 PORT=8080 pi-web
 ```
 
+Windows PowerShell 写法：
+
+```powershell
+$env:PORT = "8080"
+pi-web
+```
+
 ## 🛠️ 运行当前仓库代码
 
 ```bash
 git clone https://github.com/MaddieMo1/Pi-Agent-Web.git
 cd Pi-Agent-Web
 npm install
+```
+
+### 授权服务配置
+
+当前源码包含 Maddie 登录界面。手动执行 `npm run dev` 不会读取 `config/maddie-auth-url.txt`，也不会自动启动授权服务；未设置 `NEXT_PUBLIC_AUTH_SERVER_URL` 时，页面默认连接 `http://127.0.0.1:4000`。
+
+使用项目配置的云端授权服务时，在项目根目录执行以下命令后启动：
+
+**Windows PowerShell：**
+
+```powershell
+$env:NEXT_PUBLIC_AUTH_SERVER_URL = (Get-Content -LiteralPath config/maddie-auth-url.txt -Raw).Trim().TrimEnd("/")
 npm run dev
 ```
+
+**macOS / Linux（Bash）：**
+
+```bash
+export NEXT_PUBLIC_AUTH_SERVER_URL="$(tr -d '\r\n' < config/maddie-auth-url.txt)"
+npm run dev
+```
+
+也可以把 `NEXT_PUBLIC_AUTH_SERVER_URL` 设置为自己的授权服务地址，地址不要包含 `/admin`。使用默认本地地址时，需要另行启动本地授权服务。
+
+Windows 用户双击 `启动 Maddie Agent.bat` 时，脚本会自动读取配置文件并设置该环境变量；配置为本地地址时还会尝试启动项目内的 `auth-server/`。修改授权地址后，请重启开发服务。`NEXT_PUBLIC_AUTH_SERVER_URL` 属于前端构建配置，已构建的 npm 包不能仅靠启动时设置该变量来切换授权地址。
 
 开发服务默认运行在：
 
@@ -69,7 +101,7 @@ http://localhost:30141
 常用检查命令：
 
 ```bash
-node_modules/.bin/tsc --noEmit
+node node_modules/typescript/bin/tsc --noEmit
 npm run lint
 ```
 
@@ -167,6 +199,7 @@ powershell -ExecutionPolicy Bypass -File scripts/create-desktop-shortcut.ps1
 - 🧬 分支会话合并：将独立会话副本的新增内容摘要写入当前会话上下文
 - 🧹 会话删除整理：删除父会话时，直接子会话会自动挂到上一级，避免侧边栏树断裂
 - 🧠 模型配置：查看和编辑本地模型配置
+- 🧩 技能管理：查看技能详情、启用或禁用技能，并搜索和安装新技能
 - 🛡️ 工具预设：控制新会话可用的工具集合
 - 🗜️ 会话压缩：支持手动或自动 compaction 状态展示
 - 📁 文件浏览：在侧边栏浏览当前工作目录文件并在标签页中打开
@@ -186,6 +219,13 @@ Pi Agent Web 默认读取本地 Pi Agent 会话目录：
 PI_CODING_AGENT_DIR=/path/to/agent-dir npm run dev
 ```
 
+Windows PowerShell 写法：
+
+```powershell
+$env:PI_CODING_AGENT_DIR = "D:\PiData\agent"
+npm run dev
+```
+
 会话文件格式大致为：
 
 ```text
@@ -202,6 +242,7 @@ app/
     files/          本地文件读取
     models/         模型列表和默认模型
     models-config/  模型配置读写
+    skills/         技能列表、启用状态、搜索和安装
 
 components/
   AppShell.tsx        主布局、URL 状态、标签页管理
@@ -210,6 +251,8 @@ components/
   SessionSidebar.tsx  会话树和文件浏览器
   MessageView.tsx     单条消息渲染
   BranchNavigator.tsx 会话内分支导航
+  SkillsConfig.tsx    技能管理界面
+  AuthGate.tsx        Maddie 登录和授权界面
 
 lib/
   rpc-manager.ts      AgentSession 生命周期和 registry
@@ -263,10 +306,19 @@ Browser
 
 ## 📣 发布状态
 
-npm 包已发布：
+源码版本和 npm 发布版本分别维护。截至 2026-09-08 核对结果：
 
-```text
-@maddie1/pi-agent-web@0.7.0
+| 渠道 | 版本 |
+| --- | --- |
+| 当前仓库 `package.json` | `0.7.1` |
+| npm 官方源 `latest` | `0.6.12` |
+
+`npx @maddie1/pi-agent-web@latest` 运行的是 npm 官方源的 `latest` 版本，不一定包含当前源码的全部功能。源码版本号变更不代表该版本已经发布到 npm。
+
+查询当前 npm 最新版本：
+
+```bash
+npm view @maddie1/pi-agent-web version --registry https://registry.npmjs.org
 ```
 
 ## 🧬 分支会话合并
