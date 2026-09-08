@@ -6,6 +6,10 @@ Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在
 
 ## 🖼️ 界面预览
 
+Maddie Agent 工作台（本地运行截图，侧边栏已收起）：支持消息输入、图片附件、模型选择、推理强度、工具预设和上下文压缩。
+
+![Maddie Agent 工作台](docs/screenshots/maddie-workbench.png)
+
 Maddie Agent 登录页（本地运行截图）：使用管理员创建的账号登录后进入 Agent 工作台。
 
 ![Maddie Agent 登录界面](docs/screenshots/maddie-login.png)
