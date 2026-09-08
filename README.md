@@ -4,6 +4,12 @@ Pi Agent Web 是一个用于本地 Pi Coding Agent 的 Web 界面。它可以在
 
 📦 仓库地址：[MaddieMo1/Pi-Agent-Web](https://github.com/MaddieMo1/Pi-Agent-Web)
 
+## 🖼️ 界面预览
+
+Maddie Agent 登录页（本地运行截图）：使用管理员创建的账号登录后进入 Agent 工作台。
+
+![Maddie Agent 登录界面](docs/screenshots/maddie-login.png)
+
 ## ⚡ 快速开始
 
 手动运行 npm 包或仓库源码前，请安装 **Node.js ≥ 22.19.0**（含 npm）。Windows 一键启动脚本会检查并准备所需环境。
